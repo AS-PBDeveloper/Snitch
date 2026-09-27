@@ -47,3 +47,35 @@ export async function listAllProducts(req, res) {
     },
   });
 }
+
+export async function unlistProduct(req, res) {
+  const { id } = req.params;
+
+  const product = await productModel.findById(id);
+
+  if (!product) {
+    return res.status(404).json({ message: "Product not found by id" });
+  }
+
+  await productModel.findByIdAndUpdate(id, {
+    published: false,
+  });
+
+  return res.status(200).json({ message: "Product unpublished successfully" });
+}
+
+export async function listProduct(req, res) {
+  const { id } = req.params;
+
+  const product = await productModel.findById(id);
+
+  if (!product) {
+    return res.status(404).json({ message: "Product not found by id" });
+  }
+
+  await productModel.findByIdAndUpdate(id, {
+    published: true,
+  });
+
+  return res.status(200).json({ message: "Product published successfully" });
+}

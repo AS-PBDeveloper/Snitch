@@ -1,9 +1,18 @@
 import { Router } from "express";
-import { createProductValidator } from "../validators/product.validator.js";
-import { authenticate } from "../middlewares/auth.middleware.js";
+import {
+  createProductValidator,
+  unlistProductValidator,
+  listProductValidator,
+} from "../validators/product.validator.js";
+import {
+  authenticate,
+  authenticateSeller,
+} from "../middlewares/auth.middleware.js";
 import {
   createProduct,
   listAllProducts,
+  unlistProduct,
+  listProduct,
 } from "../controller/product.controller.js";
 import multer from "multer";
 
@@ -20,14 +29,7 @@ const router = Router();
 router.post(
   "/",
   authenticate,
-  (req, res, next) => {
-    if (req.user.role !== "seller") {
-      return res
-        .status(403)
-        .json({ message: "User is not authorized to create a products" });
-    }
-    next();
-  },
+  authenticateSeller,
   upload.array("images"),
   (req, res, next) => {
     req.body?.price && (req.body.price = JSON.parse(req.body.price));
@@ -40,5 +42,21 @@ router.post(
 );
 
 router.get("/", authenticate, listAllProducts);
+
+router.patch(
+  "/unlist/:id",
+  authenticate,
+  authenticateSeller,
+  unlistProductValidator,
+  unlistProduct,
+);
+
+router.patch(
+  "/unlist/:id",
+  authenticate,
+  authenticateSeller,
+  listProductValidator,
+  listProduct,
+);
 
 export default router;
